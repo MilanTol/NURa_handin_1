@@ -1,18 +1,29 @@
 
 import numpy as np
 
-class Matrix(np.ndarray):
+class Matrix:
 
-    def __new__(cls, input_array):
-        obj = np.asarray(input_array, dtype=np.float64).view(cls)
-        return obj
+    def __init__(self, input_arr, type=float):
+        self.arr = np.array(input_arr, dtype=type)
 
+    @property
+    def shape(self):
+        return self.arr.shape
+    
+    @property
+    def ndim(self):
+        return self.arr.ndim
+    
+    def copy(self):
+        return self.arr.copy()
 
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-
-
+    def __repr__(self):
+        return f"{self.arr}"
+    
+    def __matmul__(self, other):
+        return self.arr @ other
+    
+    
     def swap_rows(self, row1: int, row2: int):
         """
         swap rows (row1) and (row2)
@@ -30,12 +41,5 @@ class Matrix(np.ndarray):
         self[:, [col1, col2]] = self[:, [col2, col1]]
 
 
-    def scale_row(self, row: int, scalar: np.float64):
-        self[row] *= scalar
-
-
-    def scale_col(self, col: int, scalar: np.float64):
-        self[col] *= scalar
-           
     
 
