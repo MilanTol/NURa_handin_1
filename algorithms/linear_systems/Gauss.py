@@ -14,7 +14,7 @@ class Gauss:
 
     def cast(self):
         """
-        casts the matrix into Gauss form
+        casts the matrix into Gauss form.
         """
         b = self.b
         N = self.N
@@ -24,8 +24,7 @@ class Gauss:
                 self.set_pivot(row, column)
             
             self.empty_lower_rows(column)
-        return b
-    
+     
 
     def set_pivot(self, row, column):
         if self.mat[row, column] != 0:
@@ -49,6 +48,4 @@ class Gauss:
         for i in range(self.N):
             self.b[i] = 1/self.mat[i, i] * (self.b[i] - np.sum(self.mat[i, i:]*self.b[i:]))
         return self.b
-    
-
     
