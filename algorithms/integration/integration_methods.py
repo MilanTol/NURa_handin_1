@@ -30,16 +30,11 @@ def romberg(f: callable, a: np.float64, b: np.float64, m: np.int32, N:int = 1):
     
     N_p = 1
     for i in range(m)[1:]: #ranges from 1 to m-1
-        r[i] = 0
         Delta = h
         h = h/2 #Delta must be 2*h so that you dont recompute points from previous iterations!
-        x = a + h
         
-        for j in range(N_p):
-            r[i] += f(x)
-            x = x + Delta
-
-        r[i] = 0.5 * (r[i-1] + Delta*r[i]) 
+        xs = np.linspace(a+h, b-h, N_p)
+        r[i] = 0.5* (r[i-1] + Delta*np.sum(f(xs)))
         N_p *= 2
 
     N_p = 1
