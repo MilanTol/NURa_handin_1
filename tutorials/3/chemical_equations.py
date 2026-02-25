@@ -6,7 +6,6 @@ sys.path.append("/home/milan/Desktop/NURa")
 import numpy as np
 
 from algorithms.linear_systems.matrix import Matrix
-from algorithms.linear_systems.Gauss import solve_Gauss
 
 mat = np.array([
     [3, 8, 1, -12, -4],
@@ -16,22 +15,30 @@ mat = np.array([
     [0, 1, 0, -12, -0]
 ])
 
-mat = np.array([
-    [0, 1],
-    [5, 0],
-])
+# mat = np.array([
+#     [3, 8, 1, -12, -4],
+#     [0, 1, 0, -1, -0],
+#     [0, 0, 3, -40, -3],
+#     [0, 0, 0, -3, -2],
+#     [0, 0, 0, -0, 1]
+# ])
 
 mat = Matrix(mat)
 
-
-b= np.array([2, 1])
+b= np.array([2, 0, 1, 0, 0])
 b = Matrix(b)
 
-x = solve_Gauss(mat, b)
+x_inv = mat.inverse()@b
+print(x_inv)
+print(mat@x_inv)
 
-print(x)
-print(b)
+print("")
 
-print(mat@x)
+x_LU = mat.solve(b)
+print(x_LU)
+print(mat@x_LU)
 
+print("")
+
+print(mat.LU_decomposition())
 
