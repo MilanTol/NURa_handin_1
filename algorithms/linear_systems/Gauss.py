@@ -16,32 +16,38 @@ class Gauss:
         """
         casts the matrix into Gauss form.
         """
-        b = self.b
         N = self.N
 
         for column in range(N):
-            for row in range(N)[column:]: #loop over rows with row >= column
-                self.set_pivot(row, column)
-            
+            self.set_pivot(column)
             self.empty_lower_rows(column)
      
 
-    def set_pivot(self, row, column):
-        if self.mat[row, column] != 0:
-            if row != column:
-                self.mat.swap_rows(column, row) #swap row with index=column with pivot row
-                self.b.swap_rows(column, row)
+    def set_pivot(self, column):
+        for row in range(self.N)[column:]: #loop over rows with row >= column
+            if self.mat[row, column] != 0:
+                if row != column:
+                    self.mat.swap_rows(column, row) #swap row with index=column with pivot row
+                    self.b.swap_rows(column, row)
+                break
 
 
     def empty_lower_rows(self, column):
+        """
+        subtracts pivot row from lower rows, such that there are 0s in column.
+        """
+        
+        pivot_inv = 1/self.mat[column, column]
+
         for row in range(self.N)[column + 1:]:
+
             if self.mat[row, column] != 0:
-                self.mat[row, :] -= self.mat[row, column] * self.mat[column, :]
+                self.mat[row, :] -= self.mat[row, column] * pivot_inv * self.mat[column, :]
 
                 if self.b.ndim == 1:
-                    self.b[row] -= self.mat[row, column] * self.b[column]
+                    self.b[row] -= self.mat[row, column] * pivot_inv * self.b[column]
                 else:
-                    self.b[row, :] -= self.mat[row, column] * self.b[column, :]
+                    self.b[row, :] -= self.mat[row, column] * pivot_inv * self.b[column, :]
 
 
     def solve(self):

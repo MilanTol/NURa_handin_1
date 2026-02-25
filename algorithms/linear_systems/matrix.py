@@ -4,7 +4,7 @@ import numpy as np
 class Matrix(np.ndarray):
 
     def __new__(cls, input_array):
-        obj = np.asarray(input_array).view(cls)
+        obj = np.asarray(input_array, dtype=np.float64).view(cls)
         return obj
 
 
