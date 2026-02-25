@@ -1,14 +1,22 @@
 import numpy as np
+import copy
 
-class Matrix(np.ndarray):
-    def __new__(cls, input_array, dtype=float):
-        obj = np.asarray(input_array, dtype=dtype).view(cls)      
-        return obj
-    
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
+
+class Matrix(list):
+
+    def __init__(self, list: list):
+        self.rows = len(list)
+        self.columns = len(list[0])
+
+
+    def shape(self):
+        return (self.rows, self.columns)
         
+
+    def copy(self):
+        return copy.deepcopy(self)
+    
+
     def swap_rows(self, row1: int, row2: int):
         self[[row1, row2]] = self[[row1, row2]]
 
