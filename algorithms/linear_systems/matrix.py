@@ -2,20 +2,19 @@ import numpy as np
 import copy
 
 
-class Matrix(list):
+class Matrix2d(list):
 
-    def __init__(self, list: list):
-        self.rows = len(list)
-        self.columns = len(list[0])
+    def __init__(self, data):
+        self.data = np.array(data, dtype=float)
 
-
+    @property
     def shape(self):
-        return (self.rows, self.columns)
+        return self.data.shape
         
 
     def copy(self):
         return copy.deepcopy(self)
-    
+       
 
     def swap_rows(self, row1: int, row2: int):
         self[[row1, row2]] = self[[row1, row2]]
@@ -30,10 +29,10 @@ class Matrix(list):
             raise Exception("Matrix not square, does not have inverse")
         
         N = self.shape[0] #NxN matrix
-        inv = Matrix(np.eye(N))
+        inv = Matrix2d(np.eye(N))
 
         for i in range(N): #loop over columns,
-
+            
             for row in range(N)[i: ]:
                 if mat[row, i] != 0: #select first row with nonzero pivot entry
                     if mat[row, i] != 1:
@@ -79,13 +78,13 @@ class Matrix(list):
         return mat
     
     
-    def solve(self, b: np.ndarray):
-        if self.shape[1] != b.shape[0]:
+    def solve(self, b):
+        if self.shape[1] != len(b):
             raise Exception("shape of b does not match")
 
-        N = b.shape[0]
+        N = len(b)
         LU = self.LU_decomposition()
-        b = b.copy()
+        b = copy.deepcopy(b)
         
         #forward substitution
         for i in range(N):

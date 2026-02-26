@@ -6,7 +6,7 @@ sys.path.append("/home/milan/Desktop/NURa")
 
 import numpy as np
 
-from algorithms.linear_systems.matrix import Matrix
+from algorithms.linear_systems.matrix import Matrix2d
 
 mat = np.array([
     [3, 8, 1, -12, -4],
@@ -27,11 +27,10 @@ mat = np.random.random(size=(N, N))
 #     [0, 0, 0, -0, 1]
 # ])
 
-mat = Matrix(mat)
+mat = Matrix2d(mat)
 
-b= np.array([2, 0, 1, 0, 0])
+b= [2, 0, 1, 0, 0]
 b = np.random.random(size=(N,))
-b = Matrix(b)
 
 x_inv = mat.inverse()@b
 print(mat@x_inv)
