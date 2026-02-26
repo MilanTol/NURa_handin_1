@@ -6,8 +6,13 @@ sys.path.append("/home/milan/Desktop/NURa")
 
 import numpy as np
 
-from algorithms.linear_systems.matrix import Matrix2d
+from algorithms.linear_systems.matrix import Matrix
 
+
+N = 20
+
+
+mat = np.random.random(size=(N, N))
 mat = np.array([
     [3, 8, 1, -12, -4],
     [1, 0, 0, -1, -0],
@@ -16,34 +21,25 @@ mat = np.array([
     [0, 1, 0, -12, -0]
 ])
 
-N = 200
-mat = np.random.random(size=(N, N))
+mat = np.array([
+    [3, 8, 1],
+    [1, 0, 0],
+    [4, 4, 3]
+])
 
-# mat = np.array([
-#     [3, 8, 1, -12, -4],
-#     [0, 1, 0, -1, -0],
-#     [0, 0, 3, -40, -3],
-#     [0, 0, 0, -3, -2],
-#     [0, 0, 0, -0, 1]
-# ])
+mat = Matrix(mat)
 
-mat = Matrix2d(mat)
 
-b= [2, 0, 1, 0, 0]
 b = np.random.random(size=(N,))
+b= np.array([2, 0, 1, 0, 0])
+b= np.array([2, 0, 1])
+b = Matrix(b)
 
 x_inv = mat.inverse()@b
-print(mat@x_inv)
-
-print("")
-
 x_LU = mat.solve(b)
-print(mat@x_LU)
 
-# print("")
-
-# print(mat.LU_decomposition())
-
+print(x_inv)
+print(x_LU.data)
 
 def gauss_method():
     return mat.inverse()@b
