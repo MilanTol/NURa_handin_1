@@ -6,6 +6,7 @@ class Matrix:
 
     def __init__(self, data):
         self.data = np.array(data, dtype=float)
+        self.LU = None
 
     @property
     def shape(self):
@@ -112,24 +113,26 @@ class Matrix:
                 else:
                     LU[i, j] = 1/LU[j, j] * (LU[i, j] - np.sum(LU[i, :j] * LU[:j, j]))
 
-        return Matrix(LU)
+        self.LU = LU #store LU matrix for future computations
+        return LU
     
     
     def solve(self, b):
         if self.shape[1] != b.shape[0]:
             raise Exception("shape of b does not match")
-
-        N = b.shape[0]
-        LU = self.LU_decomposition()
-        b = b.copy()
         
+        N = b.shape[0]
+        if self.LU is None:
+            self.LU_decomposition()
+        
+        b = b.copy()
         #forward substitution
         for i in range(N):
-            b[i] -= np.sum(LU[i, :i] * b[:i])
+            b[i] -= np.sum(self.LU[i, :i] * b[:i])
 
         #backward substitution
         for i in range(N-1, -1, -1): #start at N-1, go up to and including 0, with steps -1
-            b[i] = 1/LU[i,i] * ( b[i] - np.sum(LU[i, i+1:]*b[i+1:]) )
+            b[i] = 1/self.LU[i,i] * ( b[i] - np.sum(self.LU[i, i+1:]*b[i+1:]) )
 
         return b
 
