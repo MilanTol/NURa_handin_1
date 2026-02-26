@@ -92,30 +92,25 @@ class Matrix:
                     mat[row, :] -= mat[row, i] * mat[i, :] 
 
         return inv
-
+   
 
     def LU_decomposition(self):
         """
         returns LU matrix from LU_decomposition of matrix (with alpha_ii = 1, so can be stored in 1 matrix!).
         """
 
-        LU = np.zeros_like(self.data)
+        LU = self.copy()
         if LU.shape[1] != LU.shape[0]:
             raise Exception("Matrix not square")
         
         N = LU.shape[0]
-
-        for j in range(N): 
-        #loop over columns j (must be done in a for loop since it depends on previously calculated j vals)
-
-            # note that in crouts algorithm, the sum is similar to matrix multiplication
-            # except that the matrices alpha has columns i till N removed, and beta has rows i till N removed.
-            # we instead create a zeros-filled LU matrix such that for i <= j we can simply use full matrix multiplication
-            # while for compute i > j (alpha values), we can use j, which we loop over. 
-
-            #Since we use one matrix only, we must make a distinction for i <= j and i > j, since alpha_ii != beta_ii
-            LU[:j+1, j] = self[:j+1, j] - LU[:j+1, :] @ LU[:, j] # i <= j
-            LU[j+1:, j] = 1/LU[j, j] * (self[j+1:, j] - LU[j+1:, :j] @ LU[:j, j]) # i > j
+    
+        for j in range(N): #loop over columns j
+            for i in range(N):
+                if i <= j:
+                    LU[i, j] -= np.sum(LU[i, :i] * LU[:i, j])
+                else:
+                    LU[i, j] = 1/LU[j, j] * (LU[i, j] - np.sum(LU[i, :j] * LU[:j, j]))
 
         return Matrix(LU)
     
