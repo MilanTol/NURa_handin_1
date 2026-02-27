@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+from helper_code.matrix import Matrix
+
 mpl.rcParams["font.size"] = 20
 mpl.rcParams["axes.labelsize"] = 20
 mpl.rcParams["xtick.labelsize"] = 20
@@ -30,7 +32,7 @@ def load_data():
     return x, y
 
 
-def construct_vandermonde_matrix(x: np.ndarray) -> np.ndarray:
+def construct_vandermonde_matrix(x: np.ndarray) -> Matrix:
     """
     Construct the Vandermonde matrix V with V[i,j] = x[i]^j.
 
@@ -40,79 +42,14 @@ def construct_vandermonde_matrix(x: np.ndarray) -> np.ndarray:
 
     Returns
     -------
-    V : np.ndarray, Vandermonde matrix.
+    V : Matrix, Vandermonde matrix.
     """
-    # TODO:
-    # Replace with actual Vandermonde!
-    return np.zeros(
-        (len(x), len(x)), dtype=np.float64
-    )
 
+    V = Matrix(np.ndarray(len(x), len(x)))  # initialize vandermonde matrix
+    for j in len(x):  # sum over columns
+        V[:, j] = x**j
 
-def LU_decomposition(A: np.ndarray) -> np.ndarray:
-    """
-    Perform LU decomposition.
-
-    The lower-triangular matrix (L) is stored in the lower part of A (the diagonal elements are assumed =1),
-    while the upper-triangular matrix (U) is stored on and above the diagonal of A.
-
-    Parameters
-    ----------
-    A : np.ndarray
-        Matrix to decompose.
-
-    Returns
-    -------
-    A : np.ndarray
-        Decomposed array.
-    """
-    # TODO:
-    # write your LU decomposition
-    return A
-
-
-def forward_substitution_unit_lower(LU: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """
-    Solve L*y = b using forward substitution,
-    where L is the lower-triangular matrix.
-
-    Parameters
-    ----------
-    LU : np.ndarray
-        LU matrix from LU_decomposition.
-    b : np.ndarray
-        Right-hand side.
-
-    Returns
-    -------
-    y : np.ndarray
-        Solution vector.
-    """
-    # TODO:
-    # write your forward substitution for unit lower triangular matrix
-    return np.zeros_like(b)
-
-
-def backward_substitution_upper(LU: np.ndarray, y: np.ndarray) -> np.ndarray:
-    """
-    Solve U*c = y using backward substitution,
-    where U is the upper-triangular matrix.
-
-    Parameters
-    ----------
-    LU : np.ndarray
-        LU matrix from LU_decomposition.
-    y : np.ndarray
-        Right-hand side.
-
-    Returns
-    -------
-    c : np.ndarray
-        Solution vector.
-    """
-    # TODO:
-    # write your backward substitution for upper triangular matrix
-    return np.zeros_like(y)
+    return V
 
 
 def vandermonde_solve_coefficients(x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -131,9 +68,9 @@ def vandermonde_solve_coefficients(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     c : np.ndarray
         Polynomial coefficients.
     """
-    # TODO:
-    # solve V*c = y using your LU decomposition and forward/backward substitution
-    return np.zeros_like(x)  # Replace with your solution
+
+    V = construct_vandermonde_matrix(x)
+    return V.solve(y)  # Replace with your solution
 
 
 def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> np.ndarray:
@@ -154,7 +91,14 @@ def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> np.ndarray:
     """
     # TODO:
     # evaluate the polynomial at x_eval using the coefficients c from vandermonde_solve_coefficients
-    return np.zeros_like(x_eval)  # Replace with your results
+
+    # note that with the vandermonde matrix we can write
+    # y(x) = sum_j c[j] * x^j  as   y[i] = sum_j c_j V_ij
+
+    V = construct_vandermonde_matrix(x_eval)
+    y = np.sum(c[None, :] * V[:, :], axis=1)
+
+    return y  # Replace with your results
 
 
 def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float) -> float:
@@ -242,7 +186,10 @@ def plot_part_a(
 
     axs[0].plot(x_data, y_data, marker="o", linewidth=0)
     axs[0].plot(xx, yy, linewidth=3)
-    axs[0].set_xlim(np.floor(xx[0])-0.01*(xx[-1]-xx[0]), np.ceil(xx[-1])+0.01*(xx[-1]-xx[0]))
+    axs[0].set_xlim(
+        np.floor(xx[0]) - 0.01 * (xx[-1] - xx[0]),
+        np.ceil(xx[-1]) + 0.01 * (xx[-1] - xx[0]),
+    )
     axs[0].set_ylim(-400, 400)
     axs[0].set_ylabel("$y$")
     axs[0].legend(["data", "Via LU decomposition"], frameon=False, loc="lower left")
@@ -288,7 +235,10 @@ def plot_part_b(
 
     axs[0].plot(x_data, y_data, marker="o", linewidth=0)
     axs[0].plot(xx, yy, linestyle="dashed", linewidth=3)
-    axs[0].set_xlim(np.floor(xx[0])-0.01*(xx[-1]-xx[0]), np.ceil(xx[-1])+0.01*(xx[-1]-xx[0]))
+    axs[0].set_xlim(
+        np.floor(xx[0]) - 0.01 * (xx[-1] - xx[0]),
+        np.ceil(xx[-1]) + 0.01 * (xx[-1] - xx[0]),
+    )
     axs[0].set_ylim(-400, 400)
     axs[0].set_ylabel("$y$")
     axs[0].legend(["data", "Via Neville's algorithm"], frameon=False, loc="lower left")
@@ -360,7 +310,10 @@ def plot_part_c(
         )
         axs[1].plot(x_data, diff, linestyle=linstyl[i], color=colors[i], linewidth=3)
 
-    axs[0].set_xlim(np.floor(xx[0])-0.01*(xx[-1]-xx[0]), np.ceil(xx[-1])+0.01*(xx[-1]-xx[0]))
+    axs[0].set_xlim(
+        np.floor(xx[0]) - 0.01 * (xx[-1] - xx[0]),
+        np.ceil(xx[-1]) + 0.01 * (xx[-1] - xx[0]),
+    )
     axs[0].set_ylim(-400, 400)
     axs[0].set_ylabel("$y$")
     axs[0].legend(frameon=False, loc="lower left")

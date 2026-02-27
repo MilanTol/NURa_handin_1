@@ -58,6 +58,9 @@ python3 Q2_solution.py
 # Copy the code to a text file which will be shown in the PDF
 cat Q2_solution.py > Code/Vandermonde_all_code.txt
 
+# Copy the code from helper_code to a text file
+cat helper_code/matrix.py > Code/helper_code/matrix.txt
+
 echo "Compiling LaTeX..."
 pdflatex -interaction=batchmode NURA_handin_1.tex
 pdflatex -interaction=batchmode NURA_handin_1.tex &>/dev/null # Run a second time to fix links/references

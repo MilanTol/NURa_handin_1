@@ -1,18 +1,27 @@
 import numpy as np
 
 
-def Poisson(k: np.int32, lmbda: np.float32) -> np.float32:
-    """Calculate the Poisson probability for k occurrences with mean lmbda.
+def Poisson(k: np.float32, lmbda: np.float32) -> np.float32:
+    """
+    Calculate the Poisson probability for k occurrences with mean lmbda.
     Parameters:
-        k (np.int32): The number of occurrences.
+        k (np.float32): The number of occurrences.
         lmbda (np.float32): The mean number of occurrences.
     Returns:
         np.float32: The probability of observing k occurrences given the mean lmbda.
     """
-    # TODO:
-    # write your code here to calculate the Poisson probability
 
-    return 0.0
+    # Note that we value memory usage over computational speed.
+    # We do not compute lmbda^k and k! separately, producing 2 massive numbers.
+    # Instead we overwrite lmbda^k/k! during a larger number of operations, keeping the numbers "small"
+
+    # we compute it using a large number of divisions, the tradeoff is computational speed.
+    temp1 = 1
+    for i in range(k):
+        i = i + 1
+        temp1 *= lmbda / i
+
+    return temp1 * np.exp(-lmbda)
 
 
 def main() -> None:
