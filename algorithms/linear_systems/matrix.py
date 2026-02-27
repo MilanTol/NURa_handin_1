@@ -55,7 +55,7 @@ class Matrix:
         """
         swaps all elements of row1 with row2.
         """
-        self[[row1, row2]] = self[[row1, row2]]
+        self[[row2, row1]] = self[[row1, row2]]
 
 
     def inverse(self):
@@ -95,6 +95,28 @@ class Matrix:
         return inv
    
 
+    # def LU_decomposition(self):
+    #     """
+    #     returns LU matrix from LU_decomposition of matrix (with alpha_ii = 1, so can be stored in 1 matrix!).
+    #     """
+
+    #     LU = self.copy() #copy matrix to not modify the matrix itself
+    #     if LU.shape[1] != LU.shape[0]: #check whether matrix is square
+    #         raise Exception("Matrix not square")
+        
+    #     N = LU.shape[0]
+    
+    #     for j in range(N): #loop over columns j
+    #         for i in range(N):
+    #             if i <= j:
+    #                 LU[i, j] -= np.sum(LU[i, :i] * LU[:i, j])
+    #             else:
+    #                 LU[i, j] = 1/LU[j, j] * (LU[i, j] - np.sum(LU[i, :j] * LU[:j, j]))
+
+    #     self.LU = LU #store LU matrix for future computations
+    #     return LU
+    
+
     def LU_decomposition(self):
         """
         returns LU matrix from LU_decomposition of matrix (with alpha_ii = 1, so can be stored in 1 matrix!).
@@ -103,20 +125,45 @@ class Matrix:
         LU = self.copy() #copy matrix to not modify the matrix itself
         if LU.shape[1] != LU.shape[0]: #check whether matrix is square
             raise Exception("Matrix not square")
-        
         N = LU.shape[0]
-    
-        for j in range(N): #loop over columns j
-            for i in range(N):
-                if i <= j:
-                    LU[i, j] -= np.sum(LU[i, :i] * LU[:i, j])
-                else:
-                    LU[i, j] = 1/LU[j, j] * (LU[i, j] - np.sum(LU[i, :j] * LU[:j, j]))
 
-        self.LU = LU #store LU matrix for future computations
+        #implicit pivoting: find the largest entry on every row, we store its inverse
+        inverse_max_vals = []
+        for i in range(N): #loop over rows
+            max_val = 0
+            for j in range(N): #loop over columns
+                if np.abs(LU[i, j]) > max_val: #check whether entry contains largest pivot candidate compared to previous rows
+                    max_val = np.abs(LU[i,j])
+            if max_val == 0: #check for matrix singularity
+                raise Exception("matrix is singular")
+            inverse_max_vals.append(1/max_val)
+
+        self.LU_indx = [] #placeholder list to store indices of rows with largest pivot candidates
+
+        for k in range(N): #loop over columns k
+            i_max = None
+            max_val = 0
+
+            for i in range(k, N): #loop over rows i >= k
+                # check whether entry contains largest pivot candidate compared to previous rows, multiplied by inverse_max corresponding to that row
+                if np.abs(LU[i, k]) * inverse_max_vals[i] > max_val: 
+                    i_max = i
+
+            if i_max != k: #for each column where row index containing largest entry is not equal to column index:
+                LU.swap_rows(i_max, k) #swap rows to put largest weighted entry in pivot
+            self.LU_indx.append(i_max) #store row swaps in self.LU_indx list
+
+            LU[k+1:, k] /= LU[k, k] #for each row i > k, divide by beta_kk (= LU[k, k])
+            # to get LU_ik * LU_kj we can use the same trick as we did for matrix multiplication:
+            # prod = (LU[k+1:, :, None] * LU[None, :, k+1:])
+            # prod_indexed = prod[:, k, :]
+            LU[k+1:, k+1:] -= (LU[k+1:, :, None] * LU[None, :, k+1:])[:, k, :]
+
+            self.LU = LU
+        
         return LU
-    
-    
+
+
     def solve(self, b):
         """
         Solves for x given the equation Ax = b, where A is current matrix object.
@@ -133,16 +180,18 @@ class Matrix:
         if self.LU is None: #check whether LU matrix has been computed before
             self.LU_decomposition()
         
-        b = b.copy()
+        x = b.copy()
+        
         #forward substitution
         for i in range(N):
-            b[i] -= np.sum(self.LU[i, :i] * b[:i])
+            x[self.LU_indx[i]] = x[i]
+            x -= np.sum(self.LU[i, :i] * x[:i])
 
         #backward substitution
         for i in range(N-1, -1, -1): #start at N-1, go up to and including 0, with steps -1
-            b[i] = 1/self.LU[i,i] * ( b[i] - np.sum(self.LU[i, i+1:]*b[i+1:]) )
+            x[i] = 1/self.LU[i,i] * ( x[i] - np.sum(self.LU[i, i+1:]*x[i+1:]) )
 
-        return b
+        return x
 
 
 

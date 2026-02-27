@@ -26,20 +26,20 @@ mat = Matrix(mat)
 
 b = np.random.random(size=(N,))
 b= np.array([2, 0, 1, 0, 0])
-b = np.array([
-    [3, 8, 1, -12, -4],
-    [1, 0, 0, -1, -0],
-    [4, 4, 3, -40, -3],
-    [0, 2, 1, -3, -2],
-    [0, 1, 0, -12, -0]
-])
+# b = np.array([
+#     [3, 8, 1, -12, -4],
+#     [1, 0, 0, -1, -0],
+#     [4, 4, 3, -40, -3],
+#     [0, 2, 1, -3, -2],
+#     [0, 1, 0, -12, -0]
+# ])
 b = Matrix(b)
 
 x_inv = mat.inverse()@b
 x_LU = mat.solve(b)
 
-print(x_inv)
-print(x_LU.data)
+print("gauss    :", x_inv)
+print("LU       :", x_LU.data)
 
 def gauss_method():
     return mat.inverse()@b
@@ -50,16 +50,16 @@ def LU_method():
 
 time1 = time.time()
 
-for i in range(10):
+for i in range(1):
     gauss_method()
 
 time2 = time.time()
 
-for i in range(10):
+for i in range(1):
     mat.LU = None
     LU_method()
 
 time3 = time.time()
 
-print("Gauss_method:", time2 - time1)
-print("LU_method:", time3 - time2)
+print("Gauss time   :", time2 - time1)
+print("LU time      :", time3 - time2)
