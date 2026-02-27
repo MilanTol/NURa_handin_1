@@ -44,9 +44,9 @@ def construct_vandermonde_matrix(x: np.ndarray) -> Matrix:
     -------
     V : Matrix, Vandermonde matrix.
     """
-
-    V = Matrix(np.ndarray(len(x), len(x)))  # initialize vandermonde matrix
-    for j in len(x):  # sum over columns
+    shape = (len(x), len(x))
+    V = Matrix(np.ndarray(shape))  # initialize vandermonde matrix
+    for j in range(len(x)):  # sum over columns
         V[:, j] = x**j
 
     return V
@@ -73,7 +73,7 @@ def vandermonde_solve_coefficients(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     return V.solve(y)  # Replace with your solution
 
 
-def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> np.ndarray:
+def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> Matrix:
     """
     Evaluate y(x) = sum_j c[j] * x^j.
 
@@ -86,17 +86,25 @@ def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> np.ndarray:
 
     Returns
     -------
-    y_eval : np.ndarray
-        Polynomial values.
+    y_eval : Matrix
+        vector (as matrix object) containing Polynomial values.
     """
     # TODO:
     # evaluate the polynomial at x_eval using the coefficients c from vandermonde_solve_coefficients
 
-    # note that with the vandermonde matrix we can write
-    # y(x) = sum_j c[j] * x^j  as   y[i] = sum_j c_j V_ij
+    # note that with a matrix M similar to the vandermonde matrix we can write
+    # y(x) = sum_j c[j] * x^j  as   y[i] = sum_j M_ij c_j
+    # note that this is simply matrix vector multiplication
 
-    V = construct_vandermonde_matrix(x_eval)
-    y = np.sum(c[None, :] * V[:, :], axis=1)
+    # for this we require M[i, j] = x_i ** j
+    # so M has shape (len(x_eval), len(c))
+
+    shape = (len(x_eval), len(c))
+    M = Matrix(np.ndarray(shape))  # initialize vandermonde matrix
+    for j in range(len(c)):  # sum over columns
+        M[:, j] = x_eval**j
+
+    y = M @ Matrix(c)
 
     return y  # Replace with your results
 
