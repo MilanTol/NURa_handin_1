@@ -4,10 +4,13 @@ import copy
 
 class Matrix:
 
-    def __init__(self, data):
-        self.data = np.array(data, dtype=float)
+    def __init__(self, data, dtype=float):
+        self.data = np.array(data, dtype=dtype)
         self.LU = None
 
+    def __repr__(self):
+        return self.data.__repr__()
+    
     @property
     def shape(self):
         return self.data.shape
@@ -20,7 +23,7 @@ class Matrix:
 
     def __setitem__(self, index, value):
         self.data[index] = value
-       
+
     def __matmul__(self, other):
         if not isinstance(other, Matrix):
             raise Exception("Error, other object not matrix")
@@ -93,29 +96,7 @@ class Matrix:
                     mat[row, :] -= mat[row, i] * mat[i, :] 
 
         return inv
-   
-
-    # def LU_decomposition(self):
-    #     """
-    #     returns LU matrix from LU_decomposition of matrix (with alpha_ii = 1, so can be stored in 1 matrix!).
-    #     """
-
-    #     LU = self.copy() #copy matrix to not modify the matrix itself
-    #     if LU.shape[1] != LU.shape[0]: #check whether matrix is square
-    #         raise Exception("Matrix not square")
-        
-    #     N = LU.shape[0]
-    
-    #     for j in range(N): #loop over columns j
-    #         for i in range(N):
-    #             if i <= j:
-    #                 LU[i, j] -= np.sum(LU[i, :i] * LU[:i, j])
-    #             else:
-    #                 LU[i, j] = 1/LU[j, j] * (LU[i, j] - np.sum(LU[i, :j] * LU[:j, j]))
-
-    #     self.LU = LU #store LU matrix for future computations
-    #     return LU
-    
+      
 
     def LU_decomposition(self):
         """
@@ -138,26 +119,32 @@ class Matrix:
                 raise Exception("matrix is singular")
             inverse_max_vals.append(1/max_val)
 
-        self.LU_indx = [] #placeholder list to store indices of rows with largest pivot candidates
+        self.LU_indx = Matrix(range(N), dtype=int) #placeholder vector to store indices of rows with largest pivot candidates
 
         for k in range(N): #loop over columns k
             i_max = None
             max_val = 0
 
             for i in range(k, N): #loop over rows i >= k
-                # check whether entry contains largest pivot candidate compared to previous rows, multiplied by inverse_max corresponding to that row
+                # check whether entry contains largest pivot candidate compared to previous rows,
+                # multiplied by inverse_max corresponding to that row
                 if np.abs(LU[i, k]) * inverse_max_vals[i] > max_val: 
                     i_max = i
+                    max_val = np.abs(LU[i,k]) * inverse_max_vals[i]
 
             if i_max != k: #for each column where row index containing largest entry is not equal to column index:
                 LU.swap_rows(i_max, k) #swap rows to put largest weighted entry in pivot
-            self.LU_indx.append(i_max) #store row swaps in self.LU_indx list
+                self.LU_indx.swap_rows(i_max, k)
 
-            LU[k+1:, k] /= LU[k, k] #for each row i > k, divide by beta_kk (= LU[k, k])
-            # to get LU_ik * LU_kj we can use the same trick as we did for matrix multiplication:
-            # prod = (LU[k+1:, :, None] * LU[None, :, k+1:])
-            # prod_indexed = prod[:, k, :]
-            LU[k+1:, k+1:] -= (LU[k+1:, :, None] * LU[None, :, k+1:])[:, k, :]
+            # LU[k+1:, k] /= LU[k, k] #for each row i > k, divide by beta_kk (= LU[k, k])
+            # # to get LU_ik * LU_kj we can use the same trick as we did for matrix multiplication:
+            # # prod = (LU[k+1:, :, None] * LU[None, :, k+1:])
+            # # prod_indexed = prod[:, k, :]
+            # LU[k+1:, k+1:] -= (LU[k+1:, :, None] * LU[None, :, k+1:])[:, k, :]
+
+            for i in range(k+1, N):
+                LU[i, k] /= LU[k, k]
+                LU[i, k+1:] -= LU[i,k] * LU[k, k+1:]
 
             self.LU = LU
         
@@ -181,15 +168,15 @@ class Matrix:
             self.LU_decomposition()
         
         x = b.copy()
-        
+        x = x[self.LU_indx.data] #swap rows of b similar to how we swapped rows when choosing pivots for LU decomposition
+
         #forward substitution
         for i in range(N):
-            x[self.LU_indx[i]] = x[i]
-            x -= np.sum(self.LU[i, :i] * x[:i])
+            x[i] -= np.sum(self.LU[i, :i] * x[:i])
 
         #backward substitution
         for i in range(N-1, -1, -1): #start at N-1, go up to and including 0, with steps -1
-            x[i] = 1/self.LU[i,i] * ( x[i] - np.sum(self.LU[i, i+1:]*x[i+1:]) )
+            x[i] = 1/self.LU[i,i] * (x[i] - np.sum(self.LU[i, i+1:]*x[i+1:]) )
 
         return x
 
