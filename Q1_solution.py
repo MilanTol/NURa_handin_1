@@ -1,11 +1,11 @@
 import numpy as np
 
 
-def Poisson(k: np.float32, lmbda: np.float32) -> np.float32:
+def Poisson(k: np.int32, lmbda: np.float32) -> np.float32:
     """
     Calculate the Poisson probability for k occurrences with mean lmbda.
     Parameters:
-        k (np.float32): The number of occurrences.
+        k (np.int32): The number of occurrences.
         lmbda (np.float32): The mean number of occurrences.
     Returns:
         np.float32: The probability of observing k occurrences given the mean lmbda.
