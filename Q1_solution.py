@@ -19,7 +19,7 @@ def Poisson(k: np.int32, lmbda: np.float32) -> np.float32:
     # This makes our range of numbers go from (min, max) to (exp(min), exp(max)).
 
     # log(P_lmbda(k)) = log(lmbda^k) - lmbda - log(k!) = (k-1)*lmbda - sum_{i=0}^k i
-    # we compute it using a large number of divisions, the tradeoff is computational speed.
+    # we compute it using a sum over a linspace, the tradeoff is computational speed.
     logP = (k-1)*lmbda - np.sum(np.linspace(1, k, k))
 
     return np.exp(logP)
