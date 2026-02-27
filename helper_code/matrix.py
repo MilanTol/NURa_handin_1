@@ -133,20 +133,13 @@ class Matrix:
                 if np.abs(LU[i, k]) * inverse_max_vals[i] > max_val:
                     i_max = i
                     max_val = np.abs(LU[i, k]) * inverse_max_vals[i]
-
-            if (
-                i_max != k
-            ):  # for each column where row index containing largest entry is not equal to column index:
+                    
+            if (i_max != k):  
+                # for each column where row index containing largest entry is not equal to column index:
                 LU.swap_rows(
                     i_max, k
                 )  # swap rows to put largest weighted entry in pivot
                 self.LU_indx.swap_rows(i_max, k)
-
-            # LU[k+1:, k] /= LU[k, k] #for each row i > k, divide by beta_kk (= LU[k, k])
-            # # to get LU_ik * LU_kj we can use the same trick as we did for matrix multiplication:
-            # # prod = (LU[k+1:, :, None] * LU[None, :, k+1:])
-            # # prod_indexed = prod[:, k, :]
-            # LU[k+1:, k+1:] -= (LU[k+1:, :, None] * LU[None, :, k+1:])[:, k, :]
 
             for i in range(k + 1, N):
                 LU[i, k] /= LU[k, k]
