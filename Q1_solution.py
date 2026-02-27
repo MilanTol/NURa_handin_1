@@ -3,7 +3,7 @@ import numpy as np
 
 def Poisson(k: np.int32, lmbda: np.float32) -> np.float32:
     """
-    Calculate the Poisson probability for k occurrences with mean lmbda.
+    Calculate the Poisson probability for k occurrences with mean lmbda: P_lmbda(k)
     Parameters:
         k (np.int32): The number of occurrences.
         lmbda (np.float32): The mean number of occurrences.
@@ -11,17 +11,18 @@ def Poisson(k: np.int32, lmbda: np.float32) -> np.float32:
         np.float32: The probability of observing k occurrences given the mean lmbda.
     """
 
-    # Note that we value memory usage over computational speed.
-    # We do not compute lmbda^k and k! separately, producing 2 massive numbers.
-    # Instead we overwrite lmbda^k/k! during a larger number of operations, keeping the numbers "small"
+    # Note that we value memory usage over computational speed!
+    # An observation we can make is that P_lmbda(k) <= 1 for all k. So the true number we are computing is always "small".
+    # However components of the calculation can overflow, or underflow.
 
+    # Assuming that our final number is within np.float32 range, we do the calculation in log space.
+    # This makes our range of numbers go from (min, max) to (exp(min), exp(max)).
+
+    # log(P_lmbda(k)) = log(lmbda^k) - lmbda - log(k!) = (k-1)*lmbda - sum_{i=0}^k i
     # we compute it using a large number of divisions, the tradeoff is computational speed.
-    temp1 = 1
-    for i in range(k):
-        i = i + 1
-        temp1 *= lmbda / i
+    logP = (k-1)*lmbda - np.sum(np.linspace(1, k, k))
 
-    return temp1 * np.exp(-lmbda)
+    return np.exp(logP)
 
 
 def main() -> None:
