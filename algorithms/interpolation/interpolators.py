@@ -8,7 +8,7 @@ def linear_interpolator(x, x_samples, y_samples):
     ) + y_samples[i]
 
 
-def Neville(x, x_l, x_u, P_l: function, P_u: function):
+def Neville(x, x_l, x_u, P_l: callable, P_u: callable):
     if x_u > x_l:
         return ((x_u - x) * P_l(x) + (x - x_l) * P_u(x)) / (x_u - x_l)
     else:
@@ -19,6 +19,8 @@ def Neville(x, x_l, x_u, P_l: function, P_u: function):
 def Neville_interpolator(x, x_samples, y_samples, M=2):
     i = bisection(x, x_samples)
 
-    for m in range(M):
+    P = Neville(x, x_samples, y_samples, y_samples[:-1], y_samples[1:])
 
-        P_i = Neville(x, x_samples, y_samples, P_l, P_u)
+    for m in range(M):
+        P = Neville(x, x_samples, y_samples, P[:-1], P[1:])
+

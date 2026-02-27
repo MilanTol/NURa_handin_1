@@ -18,7 +18,6 @@ class Matrix:
     def __getitem__(self, index):
         return self.data[index]
 
-
     def __setitem__(self, index, value):
         self.data[index] = value
        
@@ -35,26 +34,27 @@ class Matrix:
         A = self
         B = other
         
-        if len(other.shape) == 2: 
-            # say A = (m , n) and B = (n, p)
-            # we want (A@B)_ij = sum_k A_ik * B_kj, with (A@B) = (m, p)
-            # the multiplication can be done in vectorized way
-            # by creating a matrix such that C_ikj = A_ik * B_kj
-            # by adding dimensions: A --> A[i, k, None], B --> B[None, k, j] 
-            # we can do this using * operator.
+        if len(other.shape) == 2: #check for matrix
+            # say A has shape (m , n) and B has (n, p)
+            # we want (A@B)_ij = sum_k A_ik * B_kj, with shape of (A@B) is (m, p)
+            # by creating a matrix such that C_ikj = A_ik * B_kj, the multiplication can be done in vectorized way
+            # by adding dimensions: A --> A[i, k, None], B --> B[None, k, j], multiplication is done correctly
             C = A[:, :, None] * B[None, :, :]
-            # Now C = (m, n, p) and C_ikj = A_ik * B_kj.
-            # So to get the sum we just sum over the [1] axis.
+            # Now shape of C is (m, n, p) and C_ikj = A_ik * B_kj.
+            # So to get matrix product we sum over the [1] axis.
             return np.sum(C, axis=1)   
         
-        elif len(other.shape) == 1: #then it must be a vector
+        elif len(other.shape) == 1: #check for a vector
             C = A[:, :] * B[None, :] #same story but then for vectors
             return np.sum(C, axis=1)
 
-        raise
+        raise Exception("Matrix shape is not properly defined")
         
 
     def swap_rows(self, row1: int, row2: int):
+        """
+        swaps all elements of row1 with row2.
+        """
         self[[row1, row2]] = self[[row1, row2]]
 
 
@@ -100,8 +100,8 @@ class Matrix:
         returns LU matrix from LU_decomposition of matrix (with alpha_ii = 1, so can be stored in 1 matrix!).
         """
 
-        LU = self.copy()
-        if LU.shape[1] != LU.shape[0]:
+        LU = self.copy() #copy matrix to not modify the matrix itself
+        if LU.shape[1] != LU.shape[0]: #check whether matrix is square
             raise Exception("Matrix not square")
         
         N = LU.shape[0]
@@ -118,11 +118,19 @@ class Matrix:
     
     
     def solve(self, b):
+        """
+        Solves for x given the equation Ax = b, where A is current matrix object.
+        b maybe be passed as a vector or as a matrix.
+
+        In case b is a matrix. The code returns a matrix where column i is the solution 
+        to the equation Ax = b_i where b_i is the column vector given by the ith column of the matrix b.
+        """
+
         if self.shape[1] != b.shape[0]:
-            raise Exception("shape of b does not match")
+            raise Exception("shape of b (number of rows) does not match matrix (number of columns)")
         
         N = b.shape[0]
-        if self.LU is None:
+        if self.LU is None: #check whether LU matrix has been computed before
             self.LU_decomposition()
         
         b = b.copy()
