@@ -199,10 +199,10 @@ def run_LU_iterations(
 
     with open(coeffs_output_path, "w") as f:
         for i, coeff in enumerate(coeff_values_list):
-            f.write(f"Iteration {i}:\n")
+            f.write(f"Iteration {i}:\n") #make a section header saying "iteration {i}"
             for j, c in enumerate(coeff):
-                f.write(f"  c{j} = {c:.16e}\n")
-            f.write("\n")
+                f.write(f"  c{j} = {c:.16e}\n") #write the values contained in the coefficients into the text file
+            f.write("\n") #skip line for readability
 
     return coeff_values_list  
 
