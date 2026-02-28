@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from helper_code.matrix import Matrix
+from matrix import Matrix
 
 mpl.rcParams["font.size"] = 20
 mpl.rcParams["axes.labelsize"] = 20
