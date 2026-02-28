@@ -59,8 +59,8 @@ python3 Q2_solution.py
 cat Q2_solution.py > Code/Vandermonde_all_code.txt
 
 # Copy the code from helper_code to a text file
-cat helper_code/matrix.py > Code/matrix.txt
-cat helper_code/matrix.py > Code/bisection.py
+cat matrix.py > Code/matrix.txt
+cat bisection.py > Code/bisection.txt
 
 echo "Compiling LaTeX..."
 pdflatex -interaction=batchmode NURA_handin_1.tex
