@@ -190,7 +190,7 @@ def run_LU_iterations(
         # V@coeff - y = V@coeff - V@coeff_true = V@(coeff - coeff_true) = V@error
 
         # So we can try to solve for the error
-        V_matmul_err = V@coeff - y 
+        V_matmul_err = V@Matrix(coeff) - y 
         err = V.solve(V_matmul_err) 
 
         # and subtract it from our previous best estimate
