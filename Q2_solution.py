@@ -108,29 +108,6 @@ def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> Matrix:
     y = M @ Matrix(c)
 
     return y  # Replace with your results
-
-
-def linear_interpolator(x_eval: float, x_l: float, x_u: float, y_l: float, y_u: float):
-    """
-    function that applies linear interpolation between two points. s
-
-    Parameters
-    ------------
-    x_eval(float): x value at which to evaluate
-    x_l (float): lower x data point.
-    x_u (float): upper x data point.
-    y_l (float): y value at x_l.
-    y_u (float): y value at x_u.
-
-    Returns
-    ------------
-    float: The interpolated y value at x_interp.
-    """
-    if x_u > x_l:
-        return ((x_u - x_eval) * y_l(x_eval) + (x_eval - x_l) * y_u(x_eval)) / (x_u - x_l)
-    else:
-        print("Error: x_u < x_l")
-        return
     
 
 def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = None) -> float:
@@ -154,16 +131,16 @@ def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = No
     #compute the lowest index of the M points from x_data closest to x_interp using bisection:
     i_lowest = bisection(x_interp, x_data, M)
 
-    P = y_data
+    P = y_data.copy()
 
-    x_data = x_data[i_lowest : i_lowest+M]
-    y_data = y_data[i_lowest : i_lowest+M]
+    x_data = x_data[i_lowest : i_lowest+M+1]
+    P = P[i_lowest : i_lowest+M+1]
     
-    for i in range(1, M+1):
-        P = (x_data[i:] - x_interp) * y_data[:-i] + (x_interp - x_data[:-i]) * y_data[i:]
+    for i in range(1, M):
+        P = (x_data[i:] - x_interp) * P[:-1] + (x_interp - x_data[:-i]) * P[1:]
         P /= x_data[i:] - x_data[:-i]
 
-    return P
+    return P[0]
 
 
 # you can merge the function below with LU_decomposition to make it more efficient
