@@ -11,6 +11,9 @@ def bisection(x, x_vals: np.ndarray, M:int) -> int:
     """
 
     N = len(x_vals)
+    if M > N: #check whether order does not exceed len of x_vals
+        print("Warning: order of bisection exceeds length of data array")
+        M = N 
 
     # Check for monotonicity of x_samples!
     for i in range(N - 1):
@@ -21,7 +24,7 @@ def bisection(x, x_vals: np.ndarray, M:int) -> int:
     # check for x value being at the edge:
     if x < x_vals[M - 1]:
         return 0
-    if x > x_vals[-M - 1]:
+    if x > x_vals[-M]:
         return N - M
 
     # iteratively increase i_low if input point is in "second half^iteration of considered sample_points"

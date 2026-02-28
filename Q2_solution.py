@@ -7,6 +7,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from matrix import Matrix
+from bisection import bisection
 
 mpl.rcParams["font.size"] = 20
 mpl.rcParams["axes.labelsize"] = 20
@@ -109,7 +110,30 @@ def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> Matrix:
     return y  # Replace with your results
 
 
-def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float) -> float:
+def linear_interpolator(x_eval: float, x_l: float, x_u: float, y_l: float, y_u: float):
+    """
+    function that applies linear interpolation between two points. s
+
+    Parameters
+    ------------
+    x_eval(float): x value at which to evaluate
+    x_l (float): lower x data point.
+    x_u (float): upper x data point.
+    y_l (float): y value at x_l.
+    y_u (float): y value at x_u.
+
+    Returns
+    ------------
+    float: The interpolated y value at x_interp.
+    """
+    if x_u > x_l:
+        return ((x_u - x_eval) * y_l(x_eval) + (x_eval - x_l) * y_u(x_eval)) / (x_u - x_l)
+    else:
+        print("Error: x_u < x_l")
+        return
+    
+
+def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = None) -> float:
     """
     Function that applies Nevilles algorithm to calculate the function value at x_interp.
 
@@ -118,14 +142,28 @@ def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float) -> float:
     x_data (np.ndarray): Array of x data points.
     y_data (np.ndarray): Array of y data points.
     x_interp (float): The x value at which to interpolate.
+    M (int): the order of interpolation, if M is None, uses M = x_data.shape[0]
 
     Returns
     ------------
     float: The interpolated y value at x_interp.
     """
-    # TODO:
-    # write your Neville's algorithm
-    return 0
+    if M is None:
+        M = x_data.shape[0]
+
+    #compute the lowest index of the M points from x_data closest to x_interp using bisection:
+    i_lowest = bisection(x_interp, x_data, M)
+
+    P = y_data
+
+    x_data = x_data[i_lowest : i_lowest+M]
+    y_data = y_data[i_lowest : i_lowest+M]
+    
+    for i in range(1, M+1):
+        P = (x_data[i:] - x_interp) * y_data[:-i] + (x_interp - x_data[:-i]) * y_data[i:]
+        P /= x_data[i:] - x_data[:-i]
+
+    return P
 
 
 # you can merge the function below with LU_decomposition to make it more efficient
