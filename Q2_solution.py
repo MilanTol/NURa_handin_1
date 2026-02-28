@@ -133,12 +133,18 @@ def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = No
 
     P = y_data.copy()
 
+    #first we slice the data since we only use M data points
     x_data = x_data[i_lowest : i_lowest+M+1]
     P = P[i_lowest : i_lowest+M+1]
     
+    # note that we can access the i+1 and ith element simulatenously in a vectorized way 
+    # as follows x_i+1 - x_i "=" x_data[1:] - x_data[:-1]
+    # we can use a similar to trick to compare P_10 with P_12 etc.
+    # Since the P array becomes shorter for each iteration we dont increase the indexing like we do for x_data.
+     
     for i in range(1, M):
         P = (x_data[i:] - x_interp) * P[:-1] + (x_interp - x_data[:-i]) * P[1:]
-        P /= x_data[i:] - x_data[:-i]
+        P /= x_data[i:] - x_data[:-i] 
 
     return P[0]
 
