@@ -197,12 +197,12 @@ def run_LU_iterations(
         coeff -= err
         coeff_values_list.append(coeff)
 
-
-    np.savetxt(
-        coeffs_output_path,
-        np.vstack(coeff_values_list), #Convert list to 2D array 
-        header="row i corresponds to the coefficient vector of the ith iteration",
-    )
+    with open(coeffs_output_path, "w") as f:
+        for i, coeff in enumerate(coeff_values_list):
+            f.write(f"Iteration {i}:\n")
+            for j, c in enumerate(coeff):
+                f.write(f"  c{j} = {c:.16e}\n")
+            f.write("\n")
 
     return coeff_values_list  
 
