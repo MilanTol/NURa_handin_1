@@ -155,7 +155,7 @@ def run_LU_iterations(
     y: np.ndarray,
     iterations: int = 11,
     coeffs_output_path: str = "Coefficients_per_iteration.txt",
-):
+) -> list:
     """
     Iteratively improves computation of coefficients c.
 
@@ -175,10 +175,36 @@ def run_LU_iterations(
     coeffs_history :
         List of coefficient vectors.
     """
-    # TODO:
-    # Implement an iterative improvement for computing the coefficients c,
-    # and save the coefficients at each iteration to coeffs_output_path.
-    return [np.zeros_like(x) for _ in range(iterations)]  # Replace with your solution
+
+    V = construct_vandermonde_matrix(x)
+    # instantiate a list where coefficient values for each iterations are stored
+    coeff_values_list = []
+
+    #note that the matrix class stores the LU decomposition so that we only compute it once!
+    coeff = V.solve(y)
+    coeff_values_list.append(coeff)
+
+    for i in range(iterations):
+        # Coeff is not determined perfectly: coeff = coeff_true + error
+        # Notice then that: 
+        # V@coeff - y = V@coeff - V@coeff_true = V@(coeff - coeff_true) = V@error
+
+        # So we can try to solve for the error
+        V_matmul_err = V@coeff - y 
+        err = V.solve(V_matmul_err) 
+
+        # and subtract it from our previous best estimate
+        coeff -= err
+        coeff_values_list.append(coeff)
+
+
+    np.savetxt(
+        coeffs_output_path,
+        np.vstack(coeff_values_list), #Convert list to 2D array 
+        header="row i corresponds to the coefficient vector of the ith iteration",
+    )
+
+    return coeff_values_list  
 
 
 def plot_part_a(
