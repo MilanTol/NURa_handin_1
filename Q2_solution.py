@@ -387,7 +387,7 @@ def main():
     x_data, y_data = load_data()
 
     # compute times
-    number = 1000
+    number = 100
 
     t_a = (
         timeit.timeit(
