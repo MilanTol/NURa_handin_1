@@ -176,7 +176,7 @@ def run_LU_iterations(
         List of coefficient vectors.
     """
 
-    V = construct_vandermonde_matrix(x)
+    V = construct_vandermonde_matrix(x) 
     # instantiate a list where coefficient values for each iterations are stored
     coeff_values_list = []
 
@@ -387,10 +387,11 @@ def main():
     x_data, y_data = load_data()
 
     # compute times
-    number = 10
+    number = 1000
 
     t_a = (
         timeit.timeit(
+            # note that we reconstruct our vandermonde matrix for each iteration, so its not cheating the time.
             stmt=lambda: vandermonde_solve_coefficients(x_data, y_data),
             number=number,
         )
