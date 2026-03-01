@@ -21,20 +21,23 @@ def Poisson(k: np.int32, lmbda: np.float32) -> np.float32:
     # Assuming that our log(final number) is within np.float32 range, we do the calculation as follows.
 
     # log(P_lmbda(k)) = log(lmbda^k) + log(exp(-lmbda)) - log(k!) = k*log(lmbda) - lmbda - sum_{i=0}^k i
-    # we compute it using a sum over a linspace, the tradeoff is computational speed.
-    term1 = k*np.log(lmbda) - lmbda
+    # we compute it using a for loop over a range instead of a vectorized sum over a linspace since that would 
+    # require more memory. In the for loop we can overwrite 1 number a bunch of times.
+    term1 = k * np.log(lmbda) - lmbda
     term2 = 0
-    for i in range(1, k+1):
-        term2 += np.log(i) #overwrite term2, rather than np.sum over a linspace since that would require more memory.
+    for i in range(1, k + 1):
+        term2 += np.log(
+            i
+        )  
 
     logP = term1 - term2
 
-    # we can now check whether logP is beyond the range that np.float32 can handle using numpy.finfo() 
+    # we can now check whether logP is beyond the range that np.float32 can handle using numpy.finfo()
     # log a warning to the user if necessary.
-    if logP < np.log(np.finfo('float32').tiny):
+    if logP < np.log(np.finfo("float32").tiny):
         print("Warning, P is smaller than minimum supported value by np.float32")
-    #we dont have to check whether logP is too large since P_lmbda(k) <= 1.
-     
+    # we dont have to check whether logP is too large since P_lmbda(k) <= 1.
+
     P = np.exp(logP)
     return P
 
