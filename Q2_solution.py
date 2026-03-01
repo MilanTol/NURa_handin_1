@@ -71,7 +71,7 @@ def vandermonde_solve_coefficients(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """
 
     V = construct_vandermonde_matrix(x)
-    return V.solve(y)  # Replace with your solution
+    return V.solve(y)  
 
 
 def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> Matrix:
@@ -90,9 +90,6 @@ def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> Matrix:
     y_eval : Matrix
         vector (as matrix object) containing Polynomial values.
     """
-    # TODO:
-    # evaluate the polynomial at x_eval using the coefficients c from vandermonde_solve_coefficients
-
     # note that with a matrix M similar to the vandermonde matrix we can write
     # y(x) = sum_j c[j] * x^j  as   y[i] = sum_j M_ij c_j
     # note that this is simply matrix vector multiplication
@@ -107,10 +104,12 @@ def evaluate_polynomial(c: np.ndarray, x_eval: np.ndarray) -> Matrix:
 
     y = M @ Matrix(c)
 
-    return y  # Replace with your results
-    
+    return y  
 
-def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = None) -> float:
+
+def neville(
+    x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = None
+) -> float:
     """
     Function that applies Nevilles algorithm to calculate the function value at x_interp.
 
@@ -128,23 +127,25 @@ def neville(x_data: np.ndarray, y_data: np.ndarray, x_interp: float, M: int = No
     if M is None:
         M = x_data.shape[0]
 
-    #compute the lowest index of the M points from x_data closest to x_interp using bisection:
+    # compute the lowest index of the M points from x_data closest to x_interp using bisection:
     i_lowest = bisection(x_interp, x_data, M)
 
     P = y_data.copy()
 
-    #first we slice the data since we only use M data points
-    x_data = x_data[i_lowest : i_lowest+M+1]
-    P = P[i_lowest : i_lowest+M+1]
-    
-    # note that we can access the i+1 and ith element simulatenously in a vectorized way 
+    # first we slice the data since we only use M data points
+    x_data = x_data[i_lowest : i_lowest + M + 1]
+    P = P[i_lowest : i_lowest + M + 1]
+
+    # note that we can access the i+1 and ith element simulatenously in a vectorized way
     # as follows x_i+1 - x_i "=" x_data[1:] - x_data[:-1]
-    # we can use a similar to trick to compare P_10 with P_12 etc.
-    # Since the P array becomes shorter for each iteration we dont increase the indexing like we do for x_data.
-     
+    # we can use a similar trick to compare P_i,i+1 with P_i+1,i+2.
+    # Since the P array becomes shorter for each iteration we dont increase the indexing.
+    # however the x_data stays the same length, so instead we increase te index from which 
+    # we start counting, and lower the index up to which we count.
+
     for i in range(1, M):
         P = (x_data[i:] - x_interp) * P[:-1] + (x_interp - x_data[:-i]) * P[1:]
-        P /= x_data[i:] - x_data[:-i] 
+        P /= x_data[i:] - x_data[:-i]
 
     return P[0]
 
@@ -176,22 +177,22 @@ def run_LU_iterations(
         List of coefficient vectors.
     """
 
-    V = construct_vandermonde_matrix(x) 
+    V = construct_vandermonde_matrix(x)
     # instantiate a list where coefficient values for each iterations are stored
     coeff_values_list = []
 
-    #note that the matrix class stores the LU decomposition so that we only compute it once!
+    # note that the matrix class stores the LU decomposition so that we only compute it once!
     coeff = V.solve(y)
     coeff_values_list.append(coeff)
 
     for i in range(iterations):
         # Coeff is not determined perfectly: coeff = coeff_true + error
-        # Notice then that: 
+        # Notice then that:
         # V@coeff - y = V@coeff - V@coeff_true = V@(coeff - coeff_true) = V@error
 
         # So we can try to solve for the error
-        V_matmul_err = V@Matrix(coeff) - y 
-        err = V.solve(V_matmul_err) 
+        V_matmul_err = V @ Matrix(coeff) - y
+        err = V.solve(V_matmul_err)
 
         # and subtract it from our previous best estimate
         coeff -= err
@@ -199,12 +200,14 @@ def run_LU_iterations(
 
     with open(coeffs_output_path, "w") as f:
         for i, coeff in enumerate(coeff_values_list):
-            f.write(f"Iteration {i}:\n") #make a section header saying "iteration {i}"
+            f.write(f"Iteration {i}:\n")  # make a section header saying "iteration {i}"
             for j, c in enumerate(coeff):
-                f.write(f"  c{j} = {c:.16e}\n") #write the values contained in the coefficients into the text file
-            f.write("\n") #skip line for readability
+                f.write(
+                    f"  c{j} = {c:.16e}\n"
+                )  # write the values contained in the coefficients into the text file
+            f.write("\n")  # skip line for readability
 
-    return coeff_values_list  
+    return coeff_values_list
 
 
 def plot_part_a(
