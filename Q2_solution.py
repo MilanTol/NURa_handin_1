@@ -385,6 +385,60 @@ def plot_part_c(
     plt.close()
 
 
+def plot_comparison_LU_neville(
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    plots_dir: str = "Plots",
+) -> None:
+    """
+    Ploting routine for part (b) results.
+
+    Parameters
+    ----------
+    x_data : np.ndarray
+        x-values.
+    y_data : np.ndarray
+        y-values.
+    plots_dir : str
+        Directory to save plots.
+
+    Returns
+    -------
+    None
+    """
+    xx = np.linspace(x_data[0], x_data[-1], 1001)
+    yy_neville = np.array([neville(x_data, y_data, x) for x in xx], dtype=np.float64)
+
+    fig = plt.figure(figsize=(10, 10))
+    gs = fig.add_gridspec(2, hspace=0, height_ratios=[2.0, 1.0])
+    axs = gs.subplots(sharex=True, sharey=False)
+
+    #now run LU solver on all the data points given by Neville
+
+    coeffs = vandermonde_solve_coefficients(x_data, y_data)
+    yy_LU = evaluate_polynomial(coeffs, xx)
+
+    axs[0].plot(x_data, y_data, marker="o", linewidth=0)
+    axs[0].plot(xx, yy_LU, linewidth=3)
+    axs[0].plot(xx, yy_neville, linestyle="dashed", linewidth=3)
+
+    axs[0].set_xlim(
+        np.floor(xx[0]) - 0.01 * (xx[-1] - xx[0]),
+        np.ceil(xx[-1]) + 0.01 * (xx[-1] - xx[0]),
+    )
+    axs[0].set_ylim(-400, 400)
+    axs[0].set_ylabel("$y$")
+    axs[0].legend(["data", "Via LU decomposition", "Via Neville's algorithm"], frameon=False, loc="lower left")
+
+    axs[1].set_ylim(1e-16, 1e1)
+    axs[1].set_yscale("log")
+    axs[1].set_ylabel(r"$|y_{Neville} - y_{LU}|$")
+    axs[1].set_xlabel("$x$")
+    axs[1].plot(xx, np.abs(yy_LU - yy_neville), linewidth=1)
+
+    plt.savefig(os.path.join(plots_dir, "Comparison_LU_neville.pdf"))
+    plt.close()
+
 def main():
     os.makedirs("Plots", exist_ok=True)
     x_data, y_data = load_data()
@@ -444,6 +498,7 @@ def main():
     )
     plot_part_c(x_data, y_data, coeffs_history, iterations_num=[0, 1, 10])
 
+    plot_comparison_LU_neville(x_data, y_data)
 
 if __name__ == "__main__":
     main()

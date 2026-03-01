@@ -45,12 +45,6 @@
 \begin{document}
 \maketitle
 
-\textit{Write a short description of your solution in each section. Explain your choices. Draw the conclusions from your results.}
-
-\textit{You can refer to selected lines of code where you think it is necessary. However, you must provide the full code below each question/task.}
-
-
-\textit{Don't forget to describe your figures and mention what conclusions you draw from them!}
 
 \section{Poisson Distribution}
 
@@ -70,6 +64,7 @@ The results of $P_\lambda(k)$ for selected values of $k$ and $\lambda$ are shown
 $\lambda$ & $k$ & $P_\lambda(k)$ \\ 
 \hline
 \input{Poisson_output.txt}
+\hline
 \end{tabular}
 \end{table}
 
@@ -106,13 +101,23 @@ Timing results (average per run):
   \input{Execution_times.txt}
 \end{itemize}
 
+\subsection{Conclusions}
+\textit{Write a short summary here: which method is most accurate, where errors increase, and how iterations affect accuracy.}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.80\textwidth]{\PlotDir/Comparison_LU_neville.pdf}
+  \caption{Comparison between the LU decomposition solution and the Neville interpolator. Top: interpolated curves. 
+  Bottom: absolute difference of the two interpolators on a log scale.}
+  \label{fig:LU_neville_comparison}
+\end{figure}
+
+
 \subsection{Code for Question 2}
 The following code was used for parts (2a)--(2d):
 The imported code is given in  section \ref{appendix_section}.
 \lstinputlisting[language=Python]{\CodeDir/Vandermonde_all_code.txt}
 
-\subsection{Conclusions}
-\textit{Write a short summary here: which method is most accurate, where errors increase, and how iterations affect accuracy.}
 
 \section{Code in helper classes and functions}
 \label{appendix_section}
