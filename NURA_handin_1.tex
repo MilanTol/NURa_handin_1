@@ -68,6 +68,9 @@ $\lambda$ & $k$ & $P_\lambda(k)$ \\
 \end{tabular}
 \end{table}
 
+
+
+
 \section{Vandermonde Matrix and Interpolation}
 
 \subsection{(2a) LU decomposition}
@@ -78,6 +81,8 @@ $\lambda$ & $k$ & $P_\lambda(k)$ \\
   \label{fig:vandermonde_2a}
 \end{figure}
 
+
+
 \subsection{(2b) Neville's algorithm}
 \begin{figure}[H]
   \centering
@@ -85,6 +90,17 @@ $\lambda$ & $k$ & $P_\lambda(k)$ \\
   \caption{Interpolation using Neville's algorithm. Top: data points and interpolated curve. Bottom: absolute error at the data points on a log scale.}
   \label{fig:vandermonde_2b}
 \end{figure}
+
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.80\textwidth]{\PlotDir/Comparison_LU_neville.pdf}
+  \caption{Comparison between the LU decomposition solution and the Neville interpolator. Top: interpolated curves. 
+  Bottom: absolute difference of the two interpolators on a log scale.}
+  \label{fig:LU_neville_comparison}
+\end{figure}
+
 
 \subsection{(2c) Improving the LU decomposition}
 \begin{figure}[H]
@@ -94,6 +110,9 @@ $\lambda$ & $k$ & $P_\lambda(k)$ \\
   \label{fig:vandermonde_2c}
 \end{figure}
 
+
+
+
 \subsection{(2d) Timing}
 
 Timing results (average per run):
@@ -101,16 +120,45 @@ Timing results (average per run):
   \input{Execution_times.txt}
 \end{itemize}
 
-\subsection{Conclusions}
-\textit{Write a short summary here: which method is most accurate, where errors increase, and how iterations affect accuracy.}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.80\textwidth]{\PlotDir/Comparison_LU_neville.pdf}
-  \caption{Comparison between the LU decomposition solution and the Neville interpolator. Top: interpolated curves. 
-  Bottom: absolute difference of the two interpolators on a log scale.}
-  \label{fig:LU_neville_comparison}
-\end{figure}
+
+
+\subsection{Conclusions}
+
+We can see that for larger x the error increases substantially, almost like a power law. This is because we are evaluating a 19th order polynomial.
+The coefficients of the larger powers of x: $x^\alpha$, will contain some level of error due to roundoff. 
+When evaluating the polynomial at large x, we scale this error by a factor of $x^\alpha$. 
+
+The Neville interpolator returns the same polynomial fit as the scheme that implemented solving the linear system in (a).
+This is not suprising, since Neville interpolation up to 20th order produces a 19th order polynomial, which also passes through all the 20 points.
+Since we have 20 constraints and 20 data points, such polynomials are unique. 
+However, the difference from the interpolated value compared to the value returned by Neville interpolation is practically 0 up to some roundoff error for 
+\textbf{all} values of x. The roundoff error does not get scaled by some factor dependent on x, unlike the LU scheme. 
+This makes sense when looking at how Neville interpolation works.
+For each point we interpolate the data separately. 
+At each data point $(x_i, y_i)$, for each iteration, we have an expression of the form $y = y_i + (x-x_i)*C(x)$,
+where $C$ is a function determined by the other data points. This becomes $y_i$ up to some roundoff error.
+However, the price of this precision is speed. Since we must do the interpolation for every point separately the algorithm is almost two orders of magnitude slower!
+
+a comparison between the two interpolators in Figure \ref{fig:LU_neville_comparison}, we see that
+in between the two data points the two interpolators do not match all, compared to how well the two methods match the data. 
+Why is this? Well its because Neville interpolation is technically not plotting a clean 19th order polynomial. 
+For each point at which the neville interpolator is evaluated, it is doing a new fit to the data, 
+using the point at which it is being evaluated as $x=0$ (that is also why the errors are so small).
+
+Is the precision worth the computation time? The answer is (almost) all cases is no.
+In most practical cases, there is some error associated with the data itself. 
+Fitting perfectly to noisy data is not physical. 
+One exception might be when we would extend this to a 100th+ order polynomial. 
+In that case the LU decomposition approach would blow up the errors significantly. But rarely do we see these cases.
+Furthermore, there are various ways to interpret the data, and hence motivations for different interpolation schemes.
+The \textit{error in the choice of interpolation scheme} will in nearly all cases be larger than the difference in precision by 
+these two interpolation schemes.
+
+We see that iteratively trying to decrease the error on the solution found by the LU decomposition is redundant. 
+This is because we have employed implicit pivoting into our LU decomposition. This ensures that the maximum precision is obtained for
+the datatype which is stored in the matrix. 
+
 
 
 \subsection{Code for Question 2}
