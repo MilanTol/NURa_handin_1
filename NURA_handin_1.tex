@@ -141,10 +141,14 @@ where $C$ is a function determined by the other data points. This becomes $y_i$ 
 However, the price of this precision is speed. Since we must do the interpolation for every point separately the algorithm is almost two orders of magnitude slower!
 
 a comparison between the two interpolators in Figure \ref{fig:LU_neville_comparison}, we see that
-in between the two data points the two interpolators do not match all, compared to how well the two methods match the data. 
+in between the two data points the two interpolators do not match well, compared to how well the two methods match the data. 
 Why is this? Well its because Neville interpolation is technically not plotting a clean 19th order polynomial. 
 For each point at which the neville interpolator is evaluated, it is doing a new fit to the data, 
 using the point at which it is being evaluated as $x=0$ (that is also why the errors are so small).
+in Figure \ref{fig:LU_neville_comparison}, we can see that at the data points the plot spikes down to 
+the errors that we plotted in the previous two plots. I do not know why the difference 
+becomes so noisy for values of x between 40000 and 80000. It could be a result of roundoff error, but then 
+why would it only be present in this range? 
 
 Is the precision worth the computation time? The answer is (almost) all cases is no.
 In most practical cases, there is some error associated with the data itself. 
@@ -170,7 +174,9 @@ The imported code is given in  section \ref{appendix_section}.
 \section{Code in helper classes and functions}
 \label{appendix_section}
 The following code was imported in the exercises:
+\textbf{matrix}
 \lstinputlisting[language=Python]{\CodeDir/matrix.txt}
+\textbf{bisection}
 \lstinputlisting[language=Python]{\CodeDir/bisection.txt}
 
 \end{document}
