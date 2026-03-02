@@ -66,4 +66,4 @@ echo "Compiling LaTeX..."
 pdflatex -interaction=batchmode NURA_handin_1.tex
 pdflatex -interaction=batchmode NURA_handin_1.tex &>/dev/null # Run a second time to fix links/references
 
-echo "run.sh completed! Don't forget to hand in a *clean* version of this directory (remove downloaded data, the Plots and Code directories)."
+echo "run.sh completed!"
