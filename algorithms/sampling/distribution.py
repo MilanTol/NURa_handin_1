@@ -23,15 +23,16 @@ class Distribution:
         self.args = args
         self.rng = RNG(seed)
 
-    def rejection(self, N_samples:int=1, args:tuple=None) -> np.ndarray:
+    def rejection(self, N_samples:int=1, pmax:float=1) -> np.ndarray:
         """
-        samples x values from the distribution using rejection sampling
+        samples x values from the distribution using rejection sampling.
+        The distribution must not exceed p_max.
 
         Parameters
         Nsamples : int
             Number of samples
-        args : tuple, optional
-            Arguments of the distribution to sample, passed as args to dist
+        p_max : float
+            upper bound for probability distribution
 
         Returns
         -------
@@ -39,39 +40,16 @@ class Distribution:
             Values sampled from dist, shape (Nsamples,)
         """        
         samples = []
-        for i in range(N_samples):
-            x = self.rng.float((self.min, self.max)) #randomly draw an x in between bounds
-            y = self.rng.float() #draw a y in between 0 and 1
-            if y > self.dist(x, *args):
+        samples_collected = 0
+        while samples_collected < N_samples:
+            x = self.rng.float((self.xmin, self.xmax)) #randomly draw an x in between bounds
+            y = self.rng.float((0, pmax)) #draw a y in between 0 and pmax
+            dist_val = self.dist(x, *self.args)
+            if y < dist_val:
                 samples.append(x)
+                samples_collected += 1
         return np.array(samples)
 
-    def slice(self, dist_inv:callable, N_samples:int=1, args:tuple=None) -> np.ndarray:
-        """
-        samples x values from the distribution using slice sampling
 
-        Parameters
-        dist_inv : callable
-            inverse of distribution
-        Nsamples : int
-            Number of samples
-        args : tuple, optional
-            Arguments of the distribution to sample, passed as args to dist
-
-        Returns
-        -------
-        sample: ndarray
-            Values sampled from dist, shape (Nsamples,)
-        """
-        p = 0
-        for i in range(1000): # we perform the following loop until we find an x with nonzero probability:
-            # we set a limit of 1000 iterations, then raise an error that we cant find a nonzero probability point
-            x = self.rng.float((self.min, self.max)) #randomly draw an x in between bounds
-            p = self.dist(x, *args)
-        if not p>0:
-            raise Exception("could not find point with non-zero probability")
-
-        y = p*self.rng.float()
-    
 
 
