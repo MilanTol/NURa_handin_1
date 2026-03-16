@@ -13,13 +13,13 @@ import matplotlib.pyplot as plt
 
 from algorithms.sorting.sorter import Sorter
 
-N = 4000
+N = 40
 rand_arr = np.random.randint(1, N, N)
 print(rand_arr)
 
 sorter_obj = Sorter(rand_arr)
 sorted_arr = sorter_obj.selection_sort()
-indx = sorter_obj.indx
+
 # print(sorted_arr)
 # print(indx)
 
@@ -33,8 +33,11 @@ indx = sorter_obj.indx
 # sortarr = Sorter(np.array([4, 2, 1, 1, 4]))
 
 #question b)
-# print('sorted by quicksort:', sorter_obj.quicksort())
+sorted_arr, indx = sorter_obj.quicksort(make_indx=True)
+print('sorted by quicksort:', sorted_arr)
+print('index array', indx)
 
+print('indexed random array', rand_arr[indx])
 print(timeit.timeit(sorter_obj.selection_sort, number=10))
 
 print(timeit.timeit(sorter_obj.quicksort, number=10))
